@@ -1,0 +1,31 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "icon128.png",
+         "16": "icon16.png",
+         "48": "icon48.png"
+      },
+      "default_title": "Download YouTube Subtitles (Right-click for format & language options)"
+   },
+   "background": {
+      "service_worker": "background.js"
+   },
+   "content_scripts": [ {
+      "js": [ "content.js" ],
+      "matches": [ "https://*.youtube.com/*" ],
+      "run_at": "document_end"
+   } ],
+   "description": "Download YouTube subtitles in any language - SRT, TXT, or copy to clipboard. 70+ languages supported.",
+   "host_permissions": [ "https://*.youtube.com/*" ],
+   "icons": {
+      "128": "icon128.png",
+      "16": "icon16.png",
+      "48": "icon48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuwDehyyQMtAk5A927LRaAMt2kzISIPH1aiDumsNLCxeO1zrPMP/syHpqi2pNYWCtPQ5/QwesMG/tjuPt9ehK46KOY5rQZwx7WSF3CaAaNirj2oQA+GKpTvOhrPUfjOhkjfOWKrACb4JlZw5yV0moeny9ykBNGHNmfmPAiSqltt0T8PihCvOWnbrn3mFQdhYvv/4bsIjaXbl+g2x7418G2xmkbNx51YSrIcAvu16w7yp1jXBtuLXmWwsprYT4W00uNnuvU7TafYAxrEB3L/JCwSwPvWVzTKKHOh/++o4TuZ9SPwx4xsof/+hLyVQciXFQQf503dhtbwGQG7dlL4knAwIDAQAB",
+   "manifest_version": 3,
+   "name": "YouTube Subtitle Downloader",
+   "permissions": [ "storage", "webRequest", "contextMenus", "clipboardWrite", "tabs" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.3.0"
+}

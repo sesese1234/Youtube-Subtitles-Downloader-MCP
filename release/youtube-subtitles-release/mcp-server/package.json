@@ -1,0 +1,33 @@
+{
+  "name": "youtube-subtitles-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for YouTube subtitle extraction — exposes subtitle tools for any MCP-compatible client",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "youtube-subtitles-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "start:bridge": "node dist/bridge.js",
+    "dev:bridge": "tsx watch src/bridge.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
