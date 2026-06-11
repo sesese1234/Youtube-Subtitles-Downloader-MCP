@@ -24,6 +24,7 @@ import { checkRateLimit } from './rate-limiter.js';
 import { listSubtitleLanguages, getSubtitles } from './youtube-service.js';
 import { convertSrtToPlainText } from './srt-converter.js';
 import { SubtitleError } from './types.js';
+import './bridge.js';
 
 // ── Server init ──
 
@@ -164,6 +165,48 @@ server.tool(
 
       return {
         content: [{ type: 'text' as const, text: header + plainText }],
+      };
+    } catch (err) {
+      return handleError(err);
+    }
+  }
+);
+
+// ── Tool: open_youtube_video ──
+// Opens a YouTube video in the user's default browser.
+
+server.tool(
+  'open_youtube_video',
+  'Open a YouTube video URL in the user\'s default browser. Use this to navigate the user to a specific video.',
+  {
+    video_url: z.string().describe('YouTube video URL (e.g. "https://www.youtube.com/watch?v=oRdxUFDoQe0")'),
+  },
+  async ({ video_url }) => {
+    try {
+      // Validate it's a YouTube URL
+      const { extractVideoId } = await import('./youtube-service.js');
+      const videoId = extractVideoId(video_url);
+      const normalizedUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
+      // Open in default browser (cross-platform)
+      const { exec } = await import('child_process');
+      const command = process.platform === 'win32'
+        ? `start "" "${normalizedUrl}"`
+        : process.platform === 'darwin'
+          ? `open "${normalizedUrl}"`
+          : `xdg-open "${normalizedUrl}"`;
+
+      await new Promise<void>((resolve, reject) => {
+        exec(command, (err) => err ? reject(err) : resolve());
+      });
+
+      logger.info('Opened YouTube video, waiting 3s for extension to push subtitles...', { videoId, url: normalizedUrl });
+      
+      // Wait 3 seconds to give the Chrome extension time to intercept and push subtitles
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      return {
+        content: [{ type: 'text' as const, text: `Opened YouTube video: ${normalizedUrl}\nWaited 3 seconds for the Chrome extension to automatically cache subtitles. You can now use get_subtitles to read them.` }],
       };
     } catch (err) {
       return handleError(err);

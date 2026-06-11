@@ -147,8 +147,35 @@ app.post('/api/subtitles/convert', rateLimitMiddleware, (req, res) => {
   }
 });
 
+import { setAutoSubtitle } from './auto-store.js';
+
+app.post('/api/subtitles/auto', rateLimitMiddleware, (req, res) => {
+  try {
+    const { videoId, language, data } = req.body;
+    if (!videoId || !data) {
+      res.status(400).json({ error: 'Missing required fields', code: 'INVALID_INPUT' });
+      return;
+    }
+
+    setAutoSubtitle(videoId, language || 'en', data);
+    logger.info('Bridge: received auto-subtitle from extension', { videoId, language });
+    
+    res.json({ success: true });
+  } catch (err) {
+    sendError(res, err);
+  }
+});
+
 // ── Start ──
 
-app.listen(BRIDGE_PORT, BRIDGE_HOST, () => {
+const serverListener = app.listen(BRIDGE_PORT, BRIDGE_HOST, () => {
   logger.info(`HTTP bridge listening on http://${BRIDGE_HOST}:${BRIDGE_PORT}`);
+});
+
+serverListener.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    logger.warn(`HTTP bridge port ${BRIDGE_PORT} is already in use. Another instance may be running.`);
+  } else {
+    logger.error(`HTTP bridge failed to start: ${err.message}`);
+  }
 });

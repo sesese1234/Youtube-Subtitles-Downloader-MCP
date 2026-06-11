@@ -1,0 +1,1 @@
+{"error":"Failed to fetch directly from YouTube, and no subtitle found in MCP bridge cache. Please run open_youtube_video first to allow the Chrome extension to extract subtitles automatically.","code":"FETCH_FAILED"}

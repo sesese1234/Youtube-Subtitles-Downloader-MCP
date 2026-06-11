@@ -54,8 +54,35 @@ chrome.runtime.onMessage.addListener((message) => {
     case 'COPY_TEXT':
       copyText(message.url, message.targetLang);
       break;
+    case 'AUTO_FETCH_SUBTITLE':
+      autoFetchAndPushToBridge(message);
+      break;
   }
 });
+
+async function autoFetchAndPushToBridge(message) {
+  try {
+    const finalUrl = buildUrlWithLanguage(message.url, null); // don't override language for auto
+    const response = await fetch(finalUrl);
+    if (!response.ok) return;
+    
+    const data = await response.json();
+    
+    await fetch(`${message.mcpBridgeUrl}/api/subtitles/auto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        videoId: message.videoId,
+        language: message.language,
+        url: message.url,
+        data: data
+      })
+    });
+    console.log('[YouTube Subtitle Downloader] Auto-pushed subtitles to MCP bridge');
+  } catch (err) {
+    console.error('[YouTube Subtitle Downloader] Failed to auto-push to MCP bridge', err);
+  }
+}
 
 function getVideoTitle() {
   const el = document.querySelector('h1 yt-formatted-string') || document.querySelector('meta[name="title"]');

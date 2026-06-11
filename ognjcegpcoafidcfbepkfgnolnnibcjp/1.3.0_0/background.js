@@ -294,6 +294,26 @@ chrome.webRequest.onBeforeRequest.addListener(
           chrome.storage.local.set({ [STORAGE_TRACKS_KEY]: tracks });
         });
       }
+
+      // Auto-post to MCP bridge if connected
+      if (mcpBridgeConnected) {
+        const videoId = urlParams.get('v');
+        // We cannot fetch from background.js due to CORS/cookie issues.
+        // Send message to the content script in the active tab to fetch it.
+        chrome.tabs.query({ url: '*://*.youtube.com/watch*' }, (tabs) => {
+          tabs.forEach(tab => {
+            if (tab.id) {
+              chrome.tabs.sendMessage(tab.id, {
+                type: 'AUTO_FETCH_SUBTITLE',
+                url: details.url,
+                videoId: videoId,
+                language: lang,
+                mcpBridgeUrl: MCP_BRIDGE_URL
+              }).catch(() => {}); // ignore errors if content script not ready
+            }
+          });
+        });
+      }
     }
   },
   { urls: ['*://www.youtube.com/api/timedtext*'], types: ['xmlhttprequest'] }
