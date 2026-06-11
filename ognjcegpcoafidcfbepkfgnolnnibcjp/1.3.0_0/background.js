@@ -21,8 +21,8 @@ chrome.runtime.onInstalled.addListener(() => {
   checkMcpBridge();
 });
 
-// Periodic bridge health check (every 30s)
-setInterval(checkMcpBridge, 30000);
+// Periodic bridge health check (every 2s)
+setInterval(checkMcpBridge, 2000);
 
 async function checkMcpBridge() {
   try {
@@ -30,6 +30,13 @@ async function checkMcpBridge() {
     if (response.ok) {
       const data = await response.json();
       mcpBridgeConnected = data.status === 'ok';
+      
+      // Handle commands from MCP server
+      if (data.command) {
+        if (data.command.type === 'OPEN_TAB' && data.command.url) {
+          chrome.tabs.create({ url: data.command.url });
+        }
+      }
     } else {
       mcpBridgeConnected = false;
     }

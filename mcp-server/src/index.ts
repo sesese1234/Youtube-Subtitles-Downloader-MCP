@@ -188,25 +188,17 @@ server.tool(
       const videoId = extractVideoId(video_url);
       const normalizedUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
-      // Open in default browser (cross-platform)
-      const { exec } = await import('child_process');
-      const command = process.platform === 'win32'
-        ? `start "" "${normalizedUrl}"`
-        : process.platform === 'darwin'
-          ? `open "${normalizedUrl}"`
-          : `xdg-open "${normalizedUrl}"`;
+      // Queue command for the extension to open the tab
+      const { queueCommandToExtension } = await import('./bridge.js');
+      queueCommandToExtension({ type: 'OPEN_TAB', url: normalizedUrl });
 
-      await new Promise<void>((resolve, reject) => {
-        exec(command, (err) => err ? reject(err) : resolve());
-      });
-
-      logger.info('Opened YouTube video, waiting 3s for extension to push subtitles...', { videoId, url: normalizedUrl });
+      logger.info('Queued OPEN_TAB command to Chrome extension, waiting 4s...', { videoId, url: normalizedUrl });
       
-      // Wait 3 seconds to give the Chrome extension time to intercept and push subtitles
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Wait 4 seconds to give the Chrome extension time to poll (up to 2s), open tab, intercept and push subtitles
+      await new Promise(resolve => setTimeout(resolve, 4000));
 
       return {
-        content: [{ type: 'text' as const, text: `Opened YouTube video: ${normalizedUrl}\nWaited 3 seconds for the Chrome extension to automatically cache subtitles. You can now use get_subtitles to read them.` }],
+        content: [{ type: 'text' as const, text: `Command sent to Chrome extension to open video: ${normalizedUrl}\nWaited 4 seconds. You can now use get_subtitles to read them.` }],
       };
     } catch (err) {
       return handleError(err);

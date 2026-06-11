@@ -24,6 +24,13 @@ import { SubtitleError } from './types.js';
 const app = express();
 const startTime = Date.now();
 
+// ── Command Queue for Extension ──
+let pendingCommands: any[] = [];
+
+export function queueCommandToExtension(command: any) {
+  pendingCommands.push(command);
+}
+
 // ── Middleware ──
 
 app.use(cors({
@@ -69,10 +76,12 @@ function sendError(res: express.Response, err: unknown): void {
 // ── Routes ──
 
 app.get('/health', (_req, res) => {
+  const command = pendingCommands.length > 0 ? pendingCommands.shift() : null;
   res.json({
     status: 'ok',
     version: MCP_SERVER_VERSION,
     uptime: Math.floor((Date.now() - startTime) / 1000),
+    command
   });
 });
 
