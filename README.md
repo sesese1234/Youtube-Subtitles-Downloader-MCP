@@ -1,5 +1,7 @@
 # YouTube Subtitles MCP Server
 
+this extention is based on: https://github.com/NoteLMai/YouTube-Subtitle-Downloader
+
 MCP server that extracts YouTube video subtitles and delivers them as **plain text (.txt)** to any MCP-compatible client (Claude Desktop, Cursor, Windsurf, etc.).
 
 Uses YouTube's native timedtext API — the same engine as the Chrome extension. SRT is fetched internally, converted to clean plain text, and returned to the model.
