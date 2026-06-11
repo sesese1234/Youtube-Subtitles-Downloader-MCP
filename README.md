@@ -33,6 +33,9 @@ Uses YouTube's native timedtext API — the same engine as the Chrome extension.
 
 ### 1. Install & Build
 
+install the ognjcegpcoafidcfbepkfgnolnnibcjp/1.3.0_0 folder as an unpcked extention in your chrome browser.
+
+
 If you downloaded the release zip, simply run the setup script:
 ```bash
 node install-mcp.js
